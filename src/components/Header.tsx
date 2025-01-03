@@ -1,7 +1,8 @@
 import React from 'react';
-import { Cross, ChevronRight } from 'lucide-react';
+import { ChevronRight } from 'lucide-react';
 import { NavLink } from './NavLink';
 import { MobileMenu } from './MobileMenu';
+import { Logo } from './Logo';
 
 export function Header() {
   return (
@@ -9,7 +10,7 @@ export function Header() {
       <nav className="container mx-auto px-6 py-4">
         <div className="flex items-center justify-between">
           <div className="flex items-center space-x-2">
-            <Cross className="h-8 w-8 text-gray-700" />
+            <Logo />
             <span className="text-xl font-bold text-gray-800">FaithFlow Tech</span>
           </div>
           <div className="hidden md:flex space-x-8">

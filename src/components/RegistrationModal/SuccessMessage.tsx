@@ -1,5 +1,5 @@
 import React from 'react';
-import { Cross } from 'lucide-react';
+import { Logo } from '../Logo';
 
 interface SuccessMessageProps {
   onClose: () => void;
@@ -9,7 +9,7 @@ export function SuccessMessage({ onClose }: SuccessMessageProps) {
   return (
     <div className="text-center py-8">
       <div className="mb-6">
-        <Cross className="mx-auto h-16 w-16 text-gray-700" />
+        <Logo className="mx-auto h-16 w-auto" />
       </div>
       <h3 className="text-2xl font-bold text-gray-900 mb-4">
         Solicitação Enviada com Sucesso!

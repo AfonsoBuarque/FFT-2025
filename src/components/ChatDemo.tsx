@@ -1,7 +1,8 @@
 import React from 'react';
-import { Cross, MessageSquare } from 'lucide-react';
+import { MessageSquare } from 'lucide-react';
 import { TestimonialBadge } from './TestimonialBadge';
 import { ChatMessage } from './ChatMessage';
+import { Logo } from './Logo';
 
 export function ChatDemo() {
   return (
@@ -10,7 +11,7 @@ export function ChatDemo() {
         <div className="flex flex-col md:flex-row items-center">
           <div className="w-full md:w-1/2 md:pr-8 text-center md:text-left">
             <div className="flex items-center justify-center md:justify-start space-x-2 mb-4">
-              <Cross className="h-6 w-6 text-gray-700" />
+              <Logo className="h-6 w-auto" />
               <span className="text-lg font-semibold text-gray-700">Novo Produto</span>
             </div>
             <h2 className="text-2xl md:text-4xl font-bold text-gray-900 mb-4 md:mb-6">
