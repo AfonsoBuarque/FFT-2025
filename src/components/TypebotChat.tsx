@@ -33,7 +33,7 @@ export function TypebotChat() {
       script.type = 'module';
       script.onload = () => {
         window.Typebot?.initBubble({
-          typebot: "facaumteste",
+          typebot: "demofftsite",
           apiHost: "https://viewer.faithflowtech.com.br",
           previewMessage: {
             message: "Eu tenho uma pergunta para você!",
