@@ -9,7 +9,7 @@ interface RegistrationData {
 
 export async function submitRegistration(data: RegistrationData) {
   try {
-    const response = await fetch('https://n8n-n8n.ibnltq.easypanel.host/webhook-test/cadastroclient', {
+    const response = await fetch('https://n8n-n8n.ibnltq.easypanel.host/webhook/cadastroclient', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
