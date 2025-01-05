@@ -18,7 +18,7 @@ export function MobileMenu() {
         <div className="absolute top-16 left-0 right-0 bg-white shadow-lg py-4 px-6 z-50">
           <nav className="flex flex-col space-y-4">
             <NavLink href="#features">Recursos</NavLink>
-            <NavLink href="#demo">Demo</NavLink>
+            <NavLink href="#demo">Demonstração</NavLink>
             <NavLink href="#contact">Contato</NavLink>
           </nav>
         </div>

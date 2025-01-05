@@ -15,7 +15,7 @@ export function Header() {
           </div>
           <div className="hidden md:flex space-x-8">
             <NavLink href="#features">Recursos</NavLink>
-            <NavLink href="#demo">Demo</NavLink>
+            <NavLink href="#demo">Demonstração</NavLink>
             <NavLink href="#contact">Contato</NavLink>
           </div>
           <MobileMenu />

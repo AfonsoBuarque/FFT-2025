@@ -30,7 +30,7 @@ export function ChatDemo() {
             <div className="bg-white rounded-lg shadow-xl p-4 md:p-6">
               <div className="flex items-center space-x-3 mb-4">
                 <MessageSquare className="h-6 w-6 text-gray-700" />
-                <span className="font-semibold">Chat Demo</span>
+                <span className="font-semibold">Chat Demonstração</span>
               </div>
               <div className="space-y-4">
                 <ChatMessage sender="user" message="Olá, gostaria de saber os horários dos cultos." />
