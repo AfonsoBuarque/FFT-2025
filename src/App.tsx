@@ -2,6 +2,7 @@ import React from 'react';
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { Header } from './components/Header';
 import { Features } from './components/Features';
+import { PartnerChurches } from './components/PartnerChurches';
 import { ChatDemo } from './components/ChatDemo';
 import { OtherProjects } from './components/OtherProjects';
 import { CTA } from './components/CTA';
@@ -11,6 +12,11 @@ import { ToastContainer } from './components/ui/ToastContainer';
 import { ProfileCompletion } from './pages/ProfileCompletion';
 import { ProfileUpdate } from './pages/ProfileUpdate';
 import { Dashboard } from './pages/Dashboard';
+import { MemberForm } from './pages/MemberForm';
+import { MemberList } from './pages/MemberList';
+import { DetalhesDeMembros } from './pages/DetalhesDeMembros';
+import { Settings } from './pages/Settings';
+import { ListaDeVisitantes } from './pages/ListaDeVisitantes';
 import { useAuthContext } from './contexts/AuthContext';
 
 function PrivateRoute({ children }: { children: React.ReactNode }) {
@@ -26,6 +32,7 @@ function LandingPage() {
     <>
       <Header />
       <Features />
+      <PartnerChurches />
       <ChatDemo />
       <OtherProjects />
       <CTA />
@@ -65,6 +72,54 @@ export default function App() {
                   <ProfileUpdate />
                 </PrivateRoute>
               } 
+            />
+            <Route
+              path="/members"
+              element={
+                <PrivateRoute>
+                  <MemberList />
+                </PrivateRoute>
+              }
+            />
+            <Route
+              path="/members/new"
+              element={
+                <PrivateRoute>
+                  <MemberForm />
+                </PrivateRoute>
+              }
+            />
+            <Route
+              path="/members/:id/edit"
+              element={
+                <PrivateRoute>
+                  <MemberForm />
+                </PrivateRoute>
+              }
+            />
+            <Route
+              path="/detalhes-membros"
+              element={
+                <PrivateRoute>
+                  <DetalhesDeMembros />
+                </PrivateRoute>
+              }
+            />
+            <Route
+              path="/settings"
+              element={
+                <PrivateRoute>
+                  <Settings />
+                </PrivateRoute>
+              }
+            />
+            <Route
+              path="/visitantes"
+              element={
+                <PrivateRoute>
+                  <ListaDeVisitantes />
+                </PrivateRoute>
+              }
             />
           </Routes>
         </div>

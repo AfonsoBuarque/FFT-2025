@@ -6,7 +6,7 @@ import { Logo } from './Logo';
 
 export function ChatDemo() {
   return (
-    <section id="demo" className="bg-gradient-to-b from-gray-50 to-white py-12 md:py-20">
+    <section id="demo" className="bg-[#D3D3D3] py-12 md:py-20">
       <div className="container mx-auto px-6">
         <div className="flex flex-col md:flex-row items-center">
           <div className="w-full md:w-1/2 md:pr-8 text-center md:text-left">
