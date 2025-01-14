@@ -22,6 +22,7 @@ export function MessageModal({ isOpen, onClose }: MessageModalProps) {
   const [departamento, setDepartamento] = useState('');
   const [mensagem, setMensagem] = useState('');
   const [sending, setSending] = useState(false);
+  const [success, setSuccess] = useState(false);
   const { addToast } = useToast();
   const { user } = useAuthContext();
 
@@ -42,33 +43,46 @@ export function MessageModal({ isOpen, onClose }: MessageModalProps) {
 
     try {
       setSending(true);
+      setSuccess(false);
       
       const payload = {
         user_id: user.id,
         departamento,
-        mensagem: mensagem.trim(),
-        igreja_id: user.id
+        mensagem: mensagem.trim()
       };
 
-      // Using no-cors mode to bypass CORS restrictions
       const response = await fetch('https://n8n-n8n-onlychurch.ibnltq.easypanel.host/webhook/mensagens', {
         method: 'POST',
         headers: {
-          'Content-Type': 'application/json'
+          'Content-Type': 'application/json',
+          'Accept': 'application/json'
         },
+        mode: 'cors',
         body: JSON.stringify(payload)
       });
 
       if (!response.ok) {
-        throw new Error('Falha ao enviar mensagem');
+        const errorData = await response.text();
+        throw new Error(errorData || 'Falha ao enviar mensagem');
       }
 
+      setSuccess(true);
       addToast('Mensagem enviada com sucesso!', 'success');
-      handleClear();
-      onClose();
+      
+      // Clear form after successful submission
+      setDepartamento('');
+      setMensagem('');
+      
+      // Close modal after 2 seconds
+      setTimeout(() => {
+        onClose();
+        setSuccess(false);
+      }, 2000);
+
     } catch (error: any) {
       console.error('Error sending message:', error);
       addToast(error.message || 'Erro ao enviar mensagem. Por favor, tente novamente.', 'error');
+      setSuccess(false);
     } finally {
       setSending(false);
     }
@@ -77,7 +91,24 @@ export function MessageModal({ isOpen, onClose }: MessageModalProps) {
   const handleClear = () => {
     setDepartamento('');
     setMensagem('');
+    setSuccess(false);
   };
+
+  if (success) {
+    return (
+      <div className="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4">
+        <div className="bg-white rounded-xl shadow-xl w-full max-w-md p-6 text-center">
+          <div className="mb-4 text-green-500">
+            <svg className="w-16 h-16 mx-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+            </svg>
+          </div>
+          <h3 className="text-xl font-bold text-gray-900 mb-2">Mensagem Enviada!</h3>
+          <p className="text-gray-600 mb-4">Sua mensagem foi enviada com sucesso.</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4">
