@@ -51,7 +51,7 @@ export function MessageModal({ isOpen, onClose }: MessageModalProps) {
       };
 
       // Using no-cors mode to bypass CORS restrictions
-      const response = await fetch('https://n8n-n8n.ibnltq.easypanel.host/webhook-test/enviomensagens', {
+      const response = await fetch('https://n8n-n8n-onlychurch.ibnltq.easypanel.host/webhook/mensagens', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json'
