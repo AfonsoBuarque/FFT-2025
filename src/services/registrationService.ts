@@ -15,13 +15,14 @@ export async function submitRegistration(data: RegistrationData) {
       headers: {
         'Content-Type': 'application/json'
       },
-      mode: 'no-cors', // Add this to handle CORS issues
-      body: JSON.stringify(data)
+      body: JSON.stringify(data),
     });
 
-    // With no-cors mode, we can't access response details
-    // So we'll assume success if we get here
-    return { success: true };
+    if (!response.ok) {
+      throw new Error('Failed to submit registration');
+    }
+
+    return await response.json();
   } catch (error) {
     console.error('Registration error:', error instanceof Error ? error.message : 'Unknown error occurred');
     throw new Error('Failed to submit registration. Please try again later.');
