@@ -14,6 +14,7 @@ export function Header() {
   const [isLoginModalOpen, setIsLoginModalOpen] = useState(false);
   const [isLogoModalOpen, setIsLogoModalOpen] = useState(false);
   const [churchLogo, setChurchLogo] = useState<string | null>(null);
+  const [churchName, setChurchName] = useState<string>('');
   const location = useLocation();
   const navigate = useNavigate();
   const { addToast } = useToast();
@@ -28,6 +29,9 @@ export function Header() {
   useEffect(() => {
     if (user) {
       fetchChurchLogo();
+      fetchChurchName();
+    } else {
+      setChurchName('');
     }
   }, [user]);
 
@@ -45,6 +49,23 @@ export function Header() {
       if (data) setChurchLogo(data.logo_url);
     } catch (error) {
       console.error('Error fetching church logo:', error);
+    }
+  };
+
+  const fetchChurchName = async () => {
+    if (!user) return;
+    
+    try {
+      const { data, error } = await supabase
+        .from('dados_igreja')
+        .select('nome_igreja')
+        .eq('user_id', user.id)
+        .single();
+
+      if (error) throw error;
+      if (data) setChurchName(data.nome_igreja);
+    } catch (error) {
+      console.error('Error fetching church name:', error);
     }
   };
 
@@ -84,7 +105,9 @@ export function Header() {
         <div className="flex items-center justify-between">
           <Link to="/" className="flex items-center space-x-2">
             <Logo />
-            <span className="text-xl font-bold text-gray-800">FaithFlow Tech</span>
+            <span className="text-xl font-bold text-gray-800">
+              FaithFlow Tech{user && churchName && ` - ${churchName}`}
+            </span>
           </Link>
           
           <div className="hidden md:flex items-center space-x-8">
