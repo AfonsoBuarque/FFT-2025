@@ -3,10 +3,13 @@ import { useNavigate } from 'react-router-dom';
 import { supabase } from '../lib/supabase';
 import { LoadingSpinner } from './ui/LoadingSpinner';
 
-export function ClientVerification() {
+interface ClientVerificationProps {
+  children?: React.ReactNode;
+}
+
+export function ClientVerification({ children }: ClientVerificationProps) {
   const [isClient, setIsClient] = useState<boolean | null>(null);
   const [loading, setLoading] = useState(true);
-  const navigate = useNavigate();
 
   useEffect(() => {
     async function checkClientStatus() {
@@ -56,5 +59,5 @@ export function ClientVerification() {
     );
   }
 
-  return null;
+  return <>{children}</>;
 }

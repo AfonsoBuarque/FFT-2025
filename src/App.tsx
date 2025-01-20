@@ -17,6 +17,8 @@ import { MemberList } from './pages/MemberList';
 import { DetalhesDeMembros } from './pages/DetalhesDeMembros';
 import { Settings } from './pages/Settings';
 import { ListaDeVisitantes } from './pages/ListaDeVisitantes';
+import { ConsoleAdmin } from './pages/ConsoleAdmin';
+import { ConsoleAdminLogin } from './pages/ConsoleAdminLogin';
 import { useAuthContext } from './contexts/AuthContext';
 
 function PrivateRoute({ children }: { children: React.ReactNode }) {
@@ -49,6 +51,15 @@ export default function App() {
         <div className="relative z-10">
           <Routes>
             <Route path="/" element={<LandingPage />} />
+            <Route path="/consoleadmin/login" element={<ConsoleAdminLogin />} />
+            <Route 
+              path="/consoleadmin" 
+              element={
+                <PrivateRoute>
+                  <ConsoleAdmin />
+                </PrivateRoute>
+              } 
+            />
             <Route 
               path="/dashboard" 
               element={

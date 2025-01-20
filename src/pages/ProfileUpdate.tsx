@@ -56,36 +56,31 @@ export function ProfileUpdate() {
       if (!user) return;
 
       try {
-        console.log('Fetching profile data for user:', user.id);
-        const [profileResponse, churchResponse] = await Promise.all([
-          supabase
-            .from('user_profiles')
-            .select('*')
-            .eq('user_id', user.id)
-            .single(),
-          supabase
-            .from('dados_igreja')
-            .select('*')
-            .eq('user_id', user.id)
-            .single()
-        ]);
+        // Fetch profile data
+        const { data: profileData, error: profileError } = await supabase
+          .from('user_profiles')
+          .select('*')
+          .eq('user_id', user.id)
+          .maybeSingle();
 
-        console.log('Profile response:', profileResponse);
-        console.log('Church response:', churchResponse);
-
-        if (profileResponse.error && profileResponse.error.code !== 'PGRST116') {
-          throw profileResponse.error;
-        }
-        if (churchResponse.error && churchResponse.error.code !== 'PGRST116') {
-          throw churchResponse.error;
+        if (profileError && profileError.code !== 'PGRST116') {
+          throw profileError;
         }
 
-        if (profileResponse.data) {
-          setProfileData(profileResponse.data);
+        // Fetch church data
+        const { data: churchData, error: churchError } = await supabase
+          .from('dados_igreja')
+          .select('*')
+          .eq('user_id', user.id)
+          .maybeSingle();
+
+        if (churchError && churchError.code !== 'PGRST116') {
+          throw churchError;
         }
-        if (churchResponse.data) {
-          setChurchData(churchResponse.data);
-        }
+
+        // Set data if it exists, otherwise use empty objects
+        setProfileData(profileData || {});
+        setChurchData(churchData || {});
       } catch (error: any) {
         console.error('Error fetching profile:', error);
         addToast('Erro ao carregar dados do perfil', 'error');

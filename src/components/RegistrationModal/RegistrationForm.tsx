@@ -9,6 +9,7 @@ interface RegistrationFormData {
   telefone: string;
   email: string;
   igreja: string;
+  pastor: string;
   redeSocial: string;
   quantidadeMembros: string;
 }
@@ -125,6 +126,21 @@ export function RegistrationForm({ onClose }: RegistrationFormProps) {
         />
         {errors.igreja && (
           <span className="text-red-500 text-sm">{errors.igreja.message}</span>
+        )}
+      </div>
+
+      <div>
+        <label htmlFor="pastor" className="block text-sm font-medium text-gray-700 mb-1">
+          Nome do Pastor*
+        </label>
+        <input
+          id="pastor"
+          type="text"
+          className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-gray-800"
+          {...register('pastor', { required: 'Nome do Pastor é obrigatório' })}
+        />
+        {errors.pastor && (
+          <span className="text-red-500 text-sm">{errors.pastor.message}</span>
         )}
       </div>
 

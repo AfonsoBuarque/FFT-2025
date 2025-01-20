@@ -22,7 +22,8 @@ export function Header() {
                        location.pathname === '/dashboard' || 
                        location.pathname === '/detalhes-membros'||
                        location.pathname === '/settings'||
-                       location.pathname === '/visitantes';
+                       location.pathname === '/visitantes'||
+                       location.pathname === '/consoleadmin';
 
   useEffect(() => {
     if (user) {
@@ -157,7 +158,7 @@ export function Header() {
                 Transforme a maneira como sua igreja gerencia membros e visitantes com nossa solução impulsionada por IA.
               </p>
               <a href="#demo" className="inline-flex items-center px-6 py-3 bg-gray-800 text-white font-semibold rounded-lg hover:bg-gray-700 transition">
-                Experimente Grátis por 15 dias
+                Experimente Grátis por 30 dias
                 <ChevronRight className="ml-2 h-5 w-5" />
               </a>
             </div>

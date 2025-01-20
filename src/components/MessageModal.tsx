@@ -51,7 +51,7 @@ export function MessageModal({ isOpen, onClose }: MessageModalProps) {
         mensagem: mensagem.trim()
       };
 
-      const response = await fetch('https://n8n-n8n-onlychurch.ibnltq.easypanel.host/webhook/mensagens', {
+      const response = await fetch('https://n8n-n8n-onlychurch.ibnltq.easypanel.host/webhook-test/mensagens', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

@@ -11,7 +11,7 @@ export function CTA() {
           Comece sua transformação digital hoje
         </h2>
         <p className="text-lg md:text-xl text-gray-600 mb-8 md:mb-10 max-w-2xl mx-auto">
-          Experimente gratuitamente por 15 dias e descubra como podemos ajudar sua igreja a crescer.
+          Experimente gratuitamente por 30 dias e descubra como podemos ajudar sua igreja a crescer.
         </p>
         <button 
           onClick={() => setIsModalOpen(true)}

@@ -5,12 +5,13 @@ import { supabase } from '../lib/supabase';
 import { LoadingSpinner } from '../components/ui/LoadingSpinner';
 import { Chart as ChartJS, ArcElement, Tooltip, Legend, CategoryScale, LinearScale, BarElement } from 'chart.js';
 import { Pie, Bar } from 'react-chartjs-2';
-import { Users, ArrowLeft, Bell, Settings, TrendingUp, TrendingDown, UserPlus, Church, BookOpen } from 'lucide-react';
+import { Users, ArrowLeft, Bell, Settings, TrendingUp, TrendingDown, UserPlus, Church, Cake } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { ClientVerification } from '../components/ClientVerification';
 import { useToast } from '../contexts/ToastContext';
 import { MemberListModal } from '../components/MemberListModal';
 import { CurrentMonthMembersModal } from '../components/CurrentMonthMembersModal';
+import { BirthdayMembersModal } from '../components/BirthdayMembersModal';
 
 ChartJS.register(ArcElement, CategoryScale, LinearScale, BarElement, Tooltip, Legend);
 
@@ -44,7 +45,8 @@ interface MemberStats {
   percentageChange: number;
   baptizedMembers: number;
   departmentLeaders: number;
-  tithers: number;
+  birthdays: number;
+  birthdayChange: number;
   ministryMembers: number;
 }
 
@@ -58,11 +60,13 @@ export function DetalhesDeMembros() {
     percentageChange: 0,
     baptizedMembers: 0,
     departmentLeaders: 0,
-    tithers: 0,
+    birthdays: 0,
+    birthdayChange: 0,
     ministryMembers: 0
   });
   const [isMemberListModalOpen, setIsMemberListModalOpen] = useState(false);
   const [isCurrentMonthModalOpen, setIsCurrentMonthModalOpen] = useState(false);
+  const [isBirthdayModalOpen, setIsBirthdayModalOpen] = useState(false);
   const { user } = useAuthContext();
   const navigate = useNavigate();
   const { addToast } = useToast();
@@ -78,9 +82,10 @@ export function DetalhesDeMembros() {
       try {
         // Get current date and first day of current month
         const now = new Date();
+        const currentMonth = now.getMonth() + 1;
         const firstDayOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
       
-      // Format dates as YYYY-MM-DD for SQL comparison
+        // Format dates as YYYY-MM-DD for SQL comparison
         const firstDayFormatted = firstDayOfMonth.toISOString().split('T')[0];
         const lastDayFormatted = now.toISOString().split('T')[0];
 
@@ -92,13 +97,32 @@ export function DetalhesDeMembros() {
 
         if (error) throw error;
 
-      // Calculate new members this month based on data_membro
-      const newThisMonth = members?.filter(member => {
-        const membroDate = member.data_membro;
-        return membroDate >= firstDayFormatted && membroDate <= lastDayFormatted;
-      }).length || 0;
+        // Calculate birthdays for current month
+        const birthdays = members?.filter(member => {
+          if (!member.data_nascimento) return false;
+          const birthMonth = new Date(member.data_nascimento).getMonth() + 1;
+          return birthMonth === currentMonth;
+        }).length || 0;
 
-      // Calculate total members and other stats
+        // Calculate birthdays for last month for comparison
+        const lastMonthBirthdays = members?.filter(member => {
+          if (!member.data_nascimento) return false;
+          const birthMonth = new Date(member.data_nascimento).getMonth() + 1;
+          return birthMonth === (currentMonth === 1 ? 12 : currentMonth - 1);
+        }).length || 0;
+
+        // Calculate birthday change percentage
+        const birthdayChange = lastMonthBirthdays === 0 
+          ? birthdays > 0 ? 100 : 0 
+          : ((birthdays - lastMonthBirthdays) / lastMonthBirthdays) * 100;
+
+        // Calculate new members this month based on data_membro
+        const newThisMonth = members?.filter(member => {
+          const membroDate = member.data_membro;
+          return membroDate >= firstDayFormatted && membroDate <= lastDayFormatted;
+        }).length || 0;
+
+        // Calculate total members and other stats
         const total = members?.length || 0;
         const baptizedMembers = members?.filter(m => m.data_batismo).length || 0;
         const ministryMembers = members?.filter(m => m.departamento).length || 0;
@@ -110,7 +134,8 @@ export function DetalhesDeMembros() {
           percentageChange: 0,
           baptizedMembers,
           departmentLeaders: members?.filter(m => m.cargo_ministerial).length || 0,
-          tithers: members?.filter(m => m.dizimista).length || 0,
+          birthdays,
+          birthdayChange,
           ministryMembers
         });
 
@@ -219,11 +244,12 @@ export function DetalhesDeMembros() {
       color: 'purple'
     },
     {
-      title: 'Membros em Ministérios',
-      value: stats.ministryMembers,
-      change: `${Math.round((stats.ministryMembers / (stats.total || 1)) * 100)}%`,
-      icon: BookOpen,
-      color: 'yellow'
+      title: 'Aniversariantes do Mês',
+      value: stats.birthdays,
+      change: `${stats.birthdayChange >= 0 ? '+' : ''}${Math.round(stats.birthdayChange)}%`,
+      icon: Cake,
+      color: 'yellow',
+      onClick: () => setIsBirthdayModalOpen(true)
     }
   ];
 
@@ -409,9 +435,14 @@ export function DetalhesDeMembros() {
       />
       
       <CurrentMonthMembersModal
-      isOpen={isCurrentMonthModalOpen}
-      onClose={() => setIsCurrentMonthModalOpen(false)}
-    />
+        isOpen={isCurrentMonthModalOpen}
+        onClose={() => setIsCurrentMonthModalOpen(false)}
+      />
+
+      <BirthdayMembersModal
+        isOpen={isBirthdayModalOpen}
+        onClose={() => setIsBirthdayModalOpen(false)}
+      />
     </>
   );
 }

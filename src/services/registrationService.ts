@@ -3,6 +3,7 @@ interface RegistrationData {
   telefone: string;
   email: string;
   igreja: string;
+  pastor: string;
   redeSocial: string;
   quantidadeMembros: string;
 }
