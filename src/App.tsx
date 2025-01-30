@@ -19,6 +19,9 @@ import { Settings } from './pages/Settings';
 import { ListaDeVisitantes } from './pages/ListaDeVisitantes';
 import { ConsoleAdmin } from './pages/ConsoleAdmin';
 import { ConsoleAdminLogin } from './pages/ConsoleAdminLogin';
+import { ChildrenManagement } from './pages/ChildrenManagement';
+import { Departments } from './pages/Departments';
+import { CalendarPage } from './pages/Calendar';
 import { useAuthContext } from './contexts/AuthContext';
 
 function PrivateRoute({ children }: { children: React.ReactNode }) {
@@ -129,6 +132,30 @@ export default function App() {
               element={
                 <PrivateRoute>
                   <ListaDeVisitantes />
+                </PrivateRoute>
+              }
+            />
+            <Route
+              path="/children-management"
+              element={
+                <PrivateRoute>
+                  <ChildrenManagement />
+                </PrivateRoute>
+              }
+            />
+            <Route
+              path="/departments"
+              element={
+                <PrivateRoute>
+                  <Departments />
+                </PrivateRoute>
+              }
+            />
+            <Route
+              path="/calendar"
+              element={
+                <PrivateRoute>
+                  <CalendarPage />
                 </PrivateRoute>
               }
             />

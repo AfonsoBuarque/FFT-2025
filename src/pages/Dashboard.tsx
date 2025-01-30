@@ -10,7 +10,8 @@ import {
   UserPlus,
   ChevronRight,
   Users,
-  History
+  History,
+  Cake
 } from 'lucide-react';
 import { Header } from '../components/HeaderClean';
 import { ClientVerification } from '../components/ClientVerification';
@@ -37,12 +38,19 @@ interface Visitor {
 interface Member {
   id: string;
   nome_completo: string;
+  data_nascimento: string;
+  foto_url: string | null;
+  departamento: string;
   email: string;
   telefone: string;
   celular: string;
-  departamento: string;
   cargo_ministerial: string;
   created_at: string;
+}
+
+interface BirthdayMember extends Member {
+  age: number;
+  day: number;
 }
 
 interface RecentActivity {
@@ -64,6 +72,7 @@ export function Dashboard() {
   const [visitorChange, setVisitorChange] = useState<number>(0);
   const [memberChange, setMemberChange] = useState<number>(0);
   const [recentActivities, setRecentActivities] = useState<RecentActivity[]>([]);
+  const [birthdayMembers, setBirthdayMembers] = useState<BirthdayMember[]>([]);
   const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
   const { user } = useAuth();
@@ -76,6 +85,37 @@ export function Dashboard() {
         const now = new Date();
         const thirtyDaysAgo = new Date(now.getTime() - (30 * 24 * 60 * 60 * 1000));
         const sixtyDaysAgo = new Date(now.getTime() - (60 * 24 * 60 * 60 * 1000));
+
+        // Get current month
+        const currentMonth = new Date().getMonth() + 1;
+        
+        // Fetch members with birthdays this month
+        const { data: members, error } = await supabase
+          .from('membros')
+          .select('*')
+          .eq('user_id', user.id);
+
+        if (error) throw error;
+
+        // Filter and process birthday members
+        const birthdayMembers = (members || [])
+          .filter(member => {
+            if (!member.data_nascimento) return false;
+            const birthMonth = new Date(member.data_nascimento).getMonth() + 1;
+            return birthMonth === currentMonth;
+          })
+          .map(member => {
+            const birthDate = new Date(member.data_nascimento);
+            const age = new Date().getFullYear() - birthDate.getFullYear();
+            return {
+              ...member,
+              age,
+              day: birthDate.getDate()
+            };
+          })
+          .sort((a, b) => a.day - b.day);
+
+        setBirthdayMembers(birthdayMembers);
 
         // Fetch visitor stats
         const [currentVisitors, previousVisitors] = await Promise.all([
@@ -189,11 +229,12 @@ export function Dashboard() {
       link: '/visitantes'
     },
     {
-      title: 'Eventos',
+      title: 'Departamento',
       value: '12',
       change: '+5%',
       icon: Calendar,
-      color: 'purple'
+      color: 'purple',
+      link: '/departments'
     },
     {
       title: 'Mensagens',
@@ -223,6 +264,12 @@ export function Dashboard() {
       icon: History,
       color: 'purple',
       onClick: () => setIsMemberListModalOpen(true)
+    },
+    {
+      title: 'Calendário',
+      icon: Calendar,
+      color: 'yellow',
+      onClick: () => navigate('/calendar')
     },
     {
       title: 'Configurações',
@@ -259,7 +306,7 @@ export function Dashboard() {
               {stats.map((stat, index) => (
                 stat.link ? (
                   <Link key={index} to={stat.link} className="block">
-                    <div className="bg-[#e5e7eb] rounded-xl shadow-sm p-6 hover:shadow-md transition-shadow">
+                    <div className="bg-[#FFFFFF] rounded-xl shadow-sm p-6 hover:shadow-md transition-shadow">
                       <div className="flex items-center justify-between mb-4">
                         <div className={`w-12 h-12 rounded-lg bg-${stat.color}-100 flex items-center justify-center`}>
                           <stat.icon className={`h-6 w-6 text-${stat.color}-600`} />
@@ -282,7 +329,7 @@ export function Dashboard() {
                 ) : (
                   <div 
                     key={index} 
-                    className="bg-[#e5e7eb] rounded-xl shadow-sm p-6 hover:shadow-md transition-shadow cursor-pointer"
+                    className="bg-[#FFFFFF] rounded-xl shadow-sm p-6 hover:shadow-md transition-shadow cursor-pointer"
                     onClick={stat.onClick}
                   >
                     <div className="flex items-center justify-between mb-4">
@@ -313,7 +360,7 @@ export function Dashboard() {
                 <button
                   key={index}
                   onClick={action.onClick}
-                  className="bg-[#DCDCDC] rounded-xl shadow-sm p-6 flex items-center space-x-4 hover:shadow-md transition-shadow"
+                  className="bg-[#FFFFFF] rounded-xl shadow-sm p-6 flex items-center space-x-4 hover:shadow-md transition-shadow"
                 >
                   <div className={`w-12 h-12 rounded-lg bg-${action.color}-100 flex items-center justify-center`}>
                     <action.icon className={`h-6 w-6 text-${action.color}-600`} />
@@ -324,53 +371,112 @@ export function Dashboard() {
               ))}
             </div>
 
-            {/* Recent Activity */}
-            <div className="mt-8">
-              <h2 className="text-xl font-semibold text-gray-900 mb-6">Atividade Recente</h2>
-              <div className="bg-[#FFFFE0] rounded-xl shadow-sm p-6">
-                <div className="space-y-6">
-                  {recentActivities.map((activity) => (
-                    <div key={activity.id} className="flex items-center justify-between pb-4 border-b border-gray-100 last:border-0 last:pb-0">
-                      <div className="flex items-center space-x-4">
-                        <div className={`w-10 h-10 rounded-full ${
-                          activity.type === 'visitor' ? 'bg-green-100' : 'bg-blue-100'
-                        } flex items-center justify-center`}>
-                          {activity.type === 'visitor' ? (
-                            <UserPlus className="h-5 w-5 text-green-600" />
-                          ) : (
-                            <Users className="h-5 w-5 text-blue-600" />
-                          )}
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+              {/* Recent Activity Section */}
+              <div className="md:col-span-2">
+                <h2 className="text-xl font-semibold text-gray-900 mb-6">Atividade Recente</h2>
+                <div className="bg-white rounded-xl shadow-sm p-6">
+                  <div className="space-y-6">
+                    {recentActivities.map((activity) => (
+                      <div key={activity.id} className="flex items-center justify-between pb-4 border-b border-gray-100 last:border-0 last:pb-0">
+                        <div className="flex items-center space-x-4">
+                          <div className={`w-10 h-10 rounded-full ${
+                            activity.type === 'visitor' ? 'bg-green-100' : 'bg-blue-100'
+                          } flex items-center justify-center`}>
+                            {activity.type === 'visitor' ? (
+                              <UserPlus className="h-5 w-5 text-green-600" />
+                            ) : (
+                              <Users className="h-5 w-5 text-blue-600" />
+                            )}
+                          </div>
+                          <div>
+                            <p className="text-gray-900 font-medium">
+                              {activity.type === 'visitor' ? 'Novo visitante' : 'Novo membro'} registrado
+                            </p>
+                            <p className="text-gray-600 text-sm">{activity.name}</p>
+                            <p className="text-gray-500 text-sm">
+                              {new Date(activity.date).toLocaleDateString('pt-BR', {
+                                day: '2-digit',
+                                month: '2-digit',
+                                year: 'numeric',
+                                hour: '2-digit',
+                                minute: '2-digit'
+                              })}
+                            </p>
+                          </div>
                         </div>
-                        <div>
-                          <p className="text-gray-900 font-medium">
-                            {activity.type === 'visitor' ? 'Novo visitante' : 'Novo membro'} registrado
-                          </p>
-                          <p className="text-gray-600 text-sm">{activity.name}</p>
-                          <p className="text-gray-500 text-sm">
-                            {new Date(activity.date).toLocaleDateString('pt-BR', {
-                              day: '2-digit',
-                              month: '2-digit',
-                              year: 'numeric',
-                              hour: '2-digit',
-                              minute: '2-digit'
-                            })}
-                          </p>
-                        </div>
+                        <button 
+                          onClick={() => setSelectedPerson({
+                            type: activity.type,
+                            ...activity.details
+                          })}
+                          className="text-blue-500 hover:text-blue-600 text-sm font-medium"
+                        >
+                          Ver detalhes
+                        </button>
                       </div>
-                      <button 
-                        onClick={() => setSelectedPerson({
-                          type: activity.type,
-                          ...activity.details
-                        })}
-                        className="text-blue-500 hover:text-blue-600 text-sm font-medium"
-                      >
-                        Ver detalhes
-                      </button>
-                    </div>
-                  ))}
+                    ))}
 
-                  {recentActivities.length === 0 && (
-                    <p className="text-center text-gray-500">Nenhuma atividade recente</p>
+                    {recentActivities.length === 0 && (
+                      <p className="text-center text-gray-500">Nenhuma atividade recente</p>
+                    )}
+                  </div>
+                </div>
+              </div>
+
+              {/* Birthday Section */}
+              <div>
+                <div className="flex items-center justify-between mb-6">
+                  <h2 className="text-xl font-semibold text-gray-900">Aniversariantes do Mês</h2>
+                  <span className="text-sm text-gray-500">
+                    {new Date().toLocaleString('pt-BR', { month: 'long' })}
+                  </span>
+                </div>
+                <div className="bg-white rounded-xl shadow-sm p-6">
+                  {birthdayMembers.length > 0 ? (
+                    <div className="space-y-4">
+                      {birthdayMembers.map((member) => (
+                        <div 
+                          key={member.id}
+                          className="flex items-center justify-between p-4 rounded-lg hover:bg-gray-50 transition-colors"
+                        >
+                          <div className="flex items-center space-x-4">
+                            {member.foto_url ? (
+                              <img
+                                src={member.foto_url}
+                                alt={member.nome_completo}
+                                className="h-10 w-10 rounded-full object-cover"
+                              />
+                            ) : (
+                              <div className="h-10 w-10 rounded-full bg-gray-200 flex items-center justify-center">
+                                <Cake className="h-6 w-6 text-gray-400" />
+                              </div>
+                            )}
+                            <div>
+                              <h3 className="text-sm font-medium text-gray-900">
+                                {member.nome_completo}
+                              </h3>
+                              <p className="text-sm text-gray-500">
+                                {member.departamento || 'Sem departamento'}
+                              </p>
+                            </div>
+                          </div>
+                          <div className="text-right">
+                            <p className="text-sm font-medium text-gray-900">
+                              Dia {member.day}
+                            </p>
+                            <p className="text-sm text-gray-500">
+                              {member.age} anos
+                            </p>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  ) : (
+                    <div className="text-center py-8">
+                      <Cake className="h-12 w-12 text-gray-400 mx-auto mb-4" />
+                      <p className="text-gray-500">Nenhum aniversariante este mês</p>
+                    </div>
                   )}
                 </div>
               </div>

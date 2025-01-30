@@ -24,7 +24,10 @@ export function Header() {
                        location.pathname === '/detalhes-membros'||
                        location.pathname === '/settings'||
                        location.pathname === '/visitantes'||
-                       location.pathname === '/consoleadmin';
+                       location.pathname === '/consoleadmin'||
+                       location.pathname === '/children-management'||
+                       location.pathname === '/departments'||
+                       location.pathname === '/calendar';
 
   useEffect(() => {
     if (user) {

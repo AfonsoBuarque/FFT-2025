@@ -221,7 +221,7 @@ export function ListaDeVisitantes() {
             {/* Stats Grid */}
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
               {statCards.map((stat, index) => (
-                <div key={index} className="bg-[#e5e7eb] rounded-xl shadow-sm p-6 hover:shadow-md transition-shadow">
+                <div key={index} className="bg-[#FFFFFF] rounded-xl shadow-sm p-6 hover:shadow-md transition-shadow">
                   <div className="flex items-center justify-between mb-4">
                     <div className={`w-12 h-12 rounded-lg bg-${stat.color}-100 flex items-center justify-center`}>
                       <stat.icon className={`h-6 w-6 text-${stat.color}-600`} />

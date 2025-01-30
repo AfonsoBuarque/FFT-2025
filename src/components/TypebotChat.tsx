@@ -42,7 +42,7 @@ export function TypebotChat() {
           theme: {
             button: {
               backgroundColor: "#666460",
-              customIconSrc: "https://storage.faithflowtech.com.br/typebot/public/workspaces/cm5co8yrg0001v4we2xxh8wny/typebots/cm5gzdtuz000t2zv5klm9obm2/bubble-icon?v=1735922745251",
+              customIconSrc: "https://i.postimg.cc/4N07HNpP/onlychurch-fundo-laranja.png",
               size: "large",
             },
             chatWindow: {

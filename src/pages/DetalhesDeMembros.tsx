@@ -327,7 +327,7 @@ export function DetalhesDeMembros() {
               {statCards.map((stat, index) => (
                 <div 
                   key={index} 
-                  className="bg-[#e5e7eb] rounded-xl shadow-sm p-6 hover:shadow-md transition-shadow cursor-pointer"
+                  className="bg-[#FFFFFF] rounded-xl shadow-sm p-6 hover:shadow-md transition-shadow cursor-pointer"
                   onClick={stat.onClick}
                 >
                   <div className="flex items-center justify-between mb-4">
