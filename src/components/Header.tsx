@@ -9,6 +9,7 @@ import { useLocation, Link, useNavigate } from 'react-router-dom';
 import { supabase } from '../lib/supabase';
 import { useToast } from '../contexts/ToastContext';
 import { useAuthContext } from '../contexts/AuthContext';
+import { TypewriterEffect } from './TypewriterEffect';
 
 export function Header() {
   const [isLoginModalOpen, setIsLoginModalOpen] = useState(false);
@@ -176,7 +177,7 @@ export function Header() {
           <div className="flex flex-col md:flex-row items-center">
             <div className="w-full md:w-1/2 text-center md:text-left">
               <h1 className="text-3xl md:text-4xl lg:text-6xl font-bold text-gray-900 mb-4 md:mb-6">
-                Tecnologia a Serviço da Fé
+                <TypewriterEffect text="Tecnologia a Serviço da Fé" />
               </h1>
               <p className="text-lg md:text-xl text-gray-600 mb-6 md:mb-8">
                 Transforme a maneira como sua igreja gerencia membros e visitantes com nossa solução impulsionada por IA.

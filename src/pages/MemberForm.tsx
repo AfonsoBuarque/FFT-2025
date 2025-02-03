@@ -5,7 +5,7 @@ import { Upload, ArrowLeft } from 'lucide-react';
 import { supabase } from '../lib/supabase';
 import { useToast } from '../contexts/ToastContext';
 import { useAuthContext } from '../contexts/AuthContext';
-import { Header } from '../components/Header';
+import { Header } from '../components/HeaderClean';
 import { FormInput } from '../components/ui/FormInput';
 import { LoadingSpinner } from '../components/ui/LoadingSpinner';
 

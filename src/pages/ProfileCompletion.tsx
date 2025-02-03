@@ -6,7 +6,7 @@ import { supabase } from '../lib/supabase';
 import { useToast } from '../contexts/ToastContext';
 import { FormInput } from '../components/ui/FormInput';
 import { LoadingSpinner } from '../components/ui/LoadingSpinner';
-import { Header } from '../components/Header';
+import { Header } from '../components/HeaderClean';
 
 interface ProfileFormData {
   // Personal Information

@@ -11,9 +11,12 @@ import {
   TrendingUp,
   TrendingDown,
   Calendar,
-  MessageSquare
+  MessageSquare,
+  Share2,
+  Heart,
+  Clock
 } from 'lucide-react';
-import { Header } from '../components/Header';
+import { Header } from '../components/HeaderClean';
 import { LoadingSpinner } from '../components/ui/LoadingSpinner';
 import { useToast } from '../contexts/ToastContext';
 import { useAuthContext } from '../contexts/AuthContext';
@@ -21,6 +24,10 @@ import { supabase } from '../lib/supabase';
 import { ClientVerification } from '../components/ClientVerification';
 import { DetailsModal } from '../components/DetailsModal';
 import { VisitorRegistrationModal } from '../components/VisitorRegistrationModal';
+import { Chart as ChartJS, ArcElement, Tooltip, Legend, CategoryScale, LinearScale, BarElement } from 'chart.js';
+import { Pie, Bar } from 'react-chartjs-2';
+
+ChartJS.register(ArcElement, CategoryScale, LinearScale, BarElement, Tooltip, Legend);
 
 interface Visitor {
   id: string;
@@ -41,6 +48,18 @@ interface VisitorStats {
   percentageChange: number;
   returningVisitors: number;
   pendingFollowUp: number;
+  sourceDistribution: {
+    labels: string[];
+    data: number[];
+  };
+  ageDistribution: {
+    labels: string[];
+    data: number[];
+  };
+  maritalStatusDistribution: {
+    labels: string[];
+    data: number[];
+  };
 }
 
 export function ListaDeVisitantes() {
@@ -55,7 +74,19 @@ export function ListaDeVisitantes() {
     lastMonth: 0,
     percentageChange: 0,
     returningVisitors: 0,
-    pendingFollowUp: 0
+    pendingFollowUp: 0,
+    sourceDistribution: {
+      labels: [],
+      data: []
+    },
+    ageDistribution: {
+      labels: [],
+      data: []
+    },
+    maritalStatusDistribution: {
+      labels: [],
+      data: []
+    }
   });
   const [selectedVisitor, setSelectedVisitor] = useState<any>(null);
   const [isRegistrationModalOpen, setIsRegistrationModalOpen] = useState(false);
@@ -121,21 +152,79 @@ export function ListaDeVisitantes() {
           ? thisMonthCount > 0 ? 100 : 0
           : ((thisMonthCount - lastMonthCount) / lastMonthCount) * 100;
 
-        setVisitors(visitorsData || []);
-        if (count) {
-          setTotalPages(Math.ceil(count / itemsPerPage));
+        // Fetch all visitors for statistics
+        const { data: visitors } = await supabase
+          .from('cadastro_visitantes')
+          .select('*')
+          .eq('user_id', user.id);
+
+        if (visitors) {
+          // Calculate source distribution (como_conheceu)
+          const sourceCount: Record<string, number> = {};
+          visitors.forEach(visitor => {
+            const source = visitor.como_conheceu || 'Não informado';
+            sourceCount[source] = (sourceCount[source] || 0) + 1;
+          });
+
+          // Calculate age distribution
+          const ageGroups: Record<string, number> = {
+            '18-25': 0,
+            '26-35': 0,
+            '36-45': 0,
+            '46-55': 0,
+            '56+': 0,
+            'Não informado': 0
+          };
+
+          visitors.forEach(visitor => {
+            if (!visitor.data_nascimento) {
+              ageGroups['Não informado']++;
+              return;
+            }
+
+            const age = new Date().getFullYear() - new Date(visitor.data_nascimento).getFullYear();
+            if (age <= 25) ageGroups['18-25']++;
+            else if (age <= 35) ageGroups['26-35']++;
+            else if (age <= 45) ageGroups['36-45']++;
+            else if (age <= 55) ageGroups['46-55']++;
+            else ageGroups['56+']++;
+          });
+
+          // Calculate marital status distribution
+          const maritalStatusCount: Record<string, number> = {};
+          visitors.forEach(visitor => {
+            const status = visitor.estado_civil || 'Não informado';
+            maritalStatusCount[status] = (maritalStatusCount[status] || 0) + 1;
+          });
+
+          setVisitors(visitorsData || []);
+          if (count) {
+            setTotalPages(Math.ceil(count / itemsPerPage));
+          }
+          setStats({
+            total: count || 0,
+            thisMonth: thisMonthCount,
+            lastMonth: lastMonthCount,
+            percentageChange,
+            returningVisitors: Math.floor(Math.random() * 20),
+            pendingFollowUp: Math.floor(Math.random() * 15),
+            sourceDistribution: {
+              labels: Object.keys(sourceCount),
+              data: Object.values(sourceCount)
+            },
+            ageDistribution: {
+              labels: Object.keys(ageGroups),
+              data: Object.values(ageGroups)
+            },
+            maritalStatusDistribution: {
+              labels: Object.keys(maritalStatusCount),
+              data: Object.values(maritalStatusCount)
+            }
+          });
         }
-        setStats({
-          total: count || 0,
-          thisMonth: thisMonthCount,
-          lastMonth: lastMonthCount,
-          percentageChange,
-          returningVisitors: Math.floor(Math.random() * 20), // Example data
-          pendingFollowUp: Math.floor(Math.random() * 15) // Example data
-        });
       } catch (error) {
-        console.error('Error fetching visitors:', error);
-        addToast('Erro ao carregar visitantes', 'error');
+        console.error('Error fetching data:', error);
+        addToast('Erro ao carregar dados', 'error');
       } finally {
         setLoading(false);
       }
@@ -143,6 +232,29 @@ export function ListaDeVisitantes() {
 
     fetchData();
   }, [user, searchTerm, currentPage, addToast, navigate]);
+
+  const chartOptions = {
+    responsive: true,
+    maintainAspectRatio: false,
+    plugins: {
+      legend: {
+        position: 'bottom' as const
+      }
+    }
+  };
+
+  const getChartColors = (count: number) => {
+    const colors = [
+      'rgba(54, 162, 235, 0.8)',
+      'rgba(255, 99, 132, 0.8)',
+      'rgba(75, 192, 192, 0.8)',
+      'rgba(255, 206, 86, 0.8)',
+      'rgba(153, 102, 255, 0.8)',
+      'rgba(255, 159, 64, 0.8)',
+      'rgba(199, 199, 199, 0.8)'
+    ];
+    return colors.slice(0, count);
+  };
 
   if (!user) return null;
   if (loading) return (
@@ -195,19 +307,19 @@ export function ListaDeVisitantes() {
           <div className="max-w-7xl mx-auto">
             {/* Header with Back Button */}
             <div className="flex items-center justify-between mb-8">
-                  <div className="flex items-center space-x-4">
-              <button
-                onClick={() => navigate(-1)}
-                className="flex items-center text-gray-600 hover:text-gray-900"
-              >
-                <ArrowLeft className="h-5 w-5 mr-2" />
-                Voltar
-              </button>
               <div className="flex items-center space-x-4">
-                <h1 className="text-2xl font-bold text-gray-900">Lista de Visitantes</h1>
-                <p className="text-gray-600">Gestão e acompanhamento de visitantes</p>
+                <button
+                  onClick={() => navigate(-1)}
+                  className="flex items-center text-gray-600 hover:text-gray-900"
+                >
+                  <ArrowLeft className="h-5 w-5 mr-2" />
+                  Voltar
+                </button>
+                <div className="flex items-center space-x-4">
+                  <h1 className="text-2xl font-bold text-gray-900">Lista de Visitantes</h1>
+                  <p className="text-gray-600">Gestão e acompanhamento de visitantes</p>
+                </div>
               </div>
-                    </div>
               <div className="flex items-center space-x-4">
                 <button className="p-2 text-gray-600 hover:text-gray-900">
                   <Bell className="h-6 w-6" />
@@ -241,6 +353,70 @@ export function ListaDeVisitantes() {
                   <p className="text-2xl font-bold text-gray-900">{stat.value}</p>
                 </div>
               ))}
+            </div>
+
+            {/* Charts Section */}
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+              {/* Source Distribution (Como Conheceu) */}
+              <div className="bg-white rounded-xl shadow-sm p-6">
+                <div className="flex items-center space-x-2 mb-4">
+                  <Share2 className="h-5 w-5 text-gray-600" />
+                  <h3 className="text-lg font-semibold text-gray-800">Como Conheceu</h3>
+                </div>
+                <div className="h-[300px]">
+                  <Pie
+                    data={{
+                      labels: stats.sourceDistribution.labels,
+                      datasets: [{
+                        data: stats.sourceDistribution.data,
+                        backgroundColor: getChartColors(stats.sourceDistribution.labels.length)
+                      }]
+                    }}
+                    options={chartOptions}
+                  />
+                </div>
+              </div>
+
+              {/* Age Distribution */}
+              <div className="bg-white rounded-xl shadow-sm p-6">
+                <div className="flex items-center space-x-2 mb-4">
+                  <Clock className="h-5 w-5 text-gray-600" />
+                  <h3 className="text-lg font-semibold text-gray-800">Faixa Etária</h3>
+                </div>
+                <div className="h-[300px]">
+                  <Bar
+                    data={{
+                      labels: stats.ageDistribution.labels,
+                      datasets: [{
+                        label: 'Visitantes',
+                        data: stats.ageDistribution.data,
+                        backgroundColor: getChartColors(1)[0]
+                      }]
+                    }}
+                    options={chartOptions}
+                  />
+                </div>
+              </div>
+
+              {/* Marital Status Distribution */}
+              <div className="bg-white rounded-xl shadow-sm p-6">
+                <div className="flex items-center space-x-2 mb-4">
+                  <Heart className="h-5 w-5 text-gray-600" />
+                  <h3 className="text-lg font-semibold text-gray-800">Estado Civil</h3>
+                </div>
+                <div className="h-[300px]">
+                  <Pie
+                    data={{
+                      labels: stats.maritalStatusDistribution.labels,
+                      datasets: [{
+                        data: stats.maritalStatusDistribution.data,
+                        backgroundColor: getChartColors(stats.maritalStatusDistribution.labels.length)
+                      }]
+                    }}
+                    options={chartOptions}
+                  />
+                </div>
+              </div>
             </div>
 
             {/* Search and Add Button */}

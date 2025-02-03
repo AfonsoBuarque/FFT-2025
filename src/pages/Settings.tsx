@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Header } from '../components/Header';
+import { Header } from '../components/HeaderClean';
 import { SettingsCard } from '../components/SettingsCard';
 import { ClientVerification } from '../components/ClientVerification';
 import { ArrowLeft } from 'lucide-react';

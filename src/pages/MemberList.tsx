@@ -9,7 +9,7 @@ import {
   ChevronLeft,
   ChevronRight
 } from 'lucide-react';
-import { Header } from '../components/Header';
+import { Header } from '../components/HeaderClean';
 import { LoadingSpinner } from '../components/ui/LoadingSpinner';
 import { useToast } from '../contexts/ToastContext';
 import { useAuthContext } from '../contexts/AuthContext';

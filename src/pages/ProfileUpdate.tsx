@@ -4,7 +4,7 @@ import { useAuth } from '../hooks/useAuth';
 import { supabase } from '../lib/supabase';
 import { useToast } from '../contexts/ToastContext';
 import { LoadingSpinner } from '../components/ui/LoadingSpinner';
-import { Header } from '../components/Header';
+import { Header } from '../components/HeaderClean';
 import { ClientVerification } from '../components/ClientVerification';
 import { User, Building2, ArrowLeft } from 'lucide-react';
 import { FormInput } from '../components/ui/FormInput';
